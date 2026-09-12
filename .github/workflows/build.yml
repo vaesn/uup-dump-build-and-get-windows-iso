@@ -213,8 +213,17 @@ jobs:
       - name: Create split zip
         shell: pwsh
         run: |
-          7z a -tzip -mx=0 -v1950M -bsp2 "${{ inputs.architecture == 'arm64' && 'c:/output' || 'd:/output' }}/$($env:ISO_NAME).zip" "$((Get-Item -Path '${{ inputs.architecture == 'arm64' && 'C:/output' || 'D:/output' }}/*.ISO').FullName)"
-          Get-ChildItem "${{ inputs.architecture == 'arm64' && 'c:/output' || 'd:/output' }}/$($env:ISO_NAME).zip.*" | Sort-Object Name | ForEach-Object { Write-Host "Created: $($_.FullName)" }
+          $OutputPath = "${{ inputs.architecture == 'arm64' && 'c:/output' || 'd:/output' }}"
+          $IsoFile = Get-Item -Path "$OutputPath/*.ISO"
+          $VolumeSizeArg = "$([int][Math]::Ceiling(($IsoFile.Length / 1MB) / 4) + 32)M"
+          $cmd7z = "7z a -tzip -mx=0 -bsp2 -v${VolumeSizeArg} `"${OutputPath}/$($env:ISO_NAME).zip`" `"$($IsoFile.FullName)`""
+          Write-Host "Executing command: $cmd7z"
+          Invoke-Expression $cmd7z
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Smart command failed (Exit Code: $LASTEXITCODE). Falling back to default (1792M)..." -ForegroundColor Yellow
+            7z a -tzip -mx=0 -v1792M -bsp2 "${OutputPath}/$($env:ISO_NAME).zip" "$($IsoFile.FullName)"
+          }
+          Get-ChildItem "$OutputPath/$($env:ISO_NAME).zip.*" | Sort-Object Name | ForEach-Object { Write-Host "Created: $($_.FullName)" }
 
       - name: Upload ISO artifact
         id: upload_iso_artifact
