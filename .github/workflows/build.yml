@@ -215,7 +215,7 @@ jobs:
         run: |
           $OutputPath = "${{ inputs.architecture == 'arm64' && 'c:/output' || 'd:/output' }}"
           $IsoFile = Get-Item -Path "$OutputPath/*.ISO"
-          $VolumeSizeArg = "$([int][Math]::Ceiling(($IsoFile.Length / 1MB) / 4) + 32)M"
+          $VolumeSizeArg = "$([int][Math]::Ceiling(($IsoFile.Length / 1MB) / 5) + 32)M"
           $cmd7z = "7z a -tzip -mx=0 -bsp2 -v${VolumeSizeArg} `"${OutputPath}/$($env:ISO_NAME).zip`" `"$($IsoFile.FullName)`""
           Write-Host "Executing command: $cmd7z"
           Invoke-Expression $cmd7z
