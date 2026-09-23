@@ -222,18 +222,18 @@ jobs:
           Invoke-Expression $cmd7z
           Get-ChildItem "$OutputPath/$($env:ISO_NAME).zip.*" | Sort-Object Name | ForEach-Object { Write-Host "Created: $($_.FullName)" }
 
-      - name: Upload ISO artifact
-        id: upload_iso_artifact
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: ${{ env.ISO_NAME }}
-          path: ${{ inputs.architecture == 'arm64' && 'c:/output/*.ISO' || 'd:/output/*.ISO' }}
-          if-no-files-found: error
-
-      - name: Set artifact_url
-        id: set_artifact_url
-        shell: pwsh
-        run: echo "artifact_url=${{ steps.upload_iso_artifact.outputs.artifact-url }}" >> $env:GITHUB_ENV
+     # - name: Upload ISO artifact
+       # id: upload_iso_artifact
+       # uses: actions/upload-artifact@v7.0.1
+       # with:
+       #   name: ${{ env.ISO_NAME }}
+       #   path: ${{ inputs.architecture == 'arm64' && 'c:/output/*.ISO' || 'd:/output/*.ISO' }}
+       #   if-no-files-found: error
+       #
+     # - name: Set artifact_url
+       # id: set_artifact_url
+       # shell: pwsh
+       # run: echo "artifact_url=${{ steps.upload_iso_artifact.outputs.artifact-url }}" >> $env:GITHUB_ENV
 
       - name: Build summary
         id: build_summary
